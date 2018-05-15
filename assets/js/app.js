@@ -10,4 +10,5 @@
 requirejs(['Core/InfiniteCreations'], function (InfiniteCreations) {
 
     new InfiniteCreations();
+
 })
