@@ -2,7 +2,9 @@
     baseUrl: '',
     paths: {
         Core: 'assets/js/core',
-        THREE: 'assets/js/three.min'
+        Scripts: 'assets/js/core/scripts',
+        _pc: 'assets/js/playcanvas-stable.min',
+        pc: 'assets/js/playcanvas-stable'
     }
 })
 

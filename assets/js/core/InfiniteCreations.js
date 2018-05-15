@@ -1,19 +1,26 @@
-﻿define(['THREE', 'Core/EventManager'], function (THREE, EventManager) {
+﻿define(['pc', 'Core/EventManager'], function (pc, EventManager) {
 
     return class InfiniteCreations {
 
         constructor() {
-            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e3);
-            this.scene = new THREE.Scene();
-            this.renderer = new THREE.WebGLRenderer({canvas: document.getElementById('ic_canvas')});
+
+
             this.gamestate = -1; // -1 idle, 0 disconnected, 1 connected to socket
             this.events = EventManager.registerEvent();
+            this.renderer = new pc.Application(document.getElementById('ic_canvas'), {});
+
+            this.renderer.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
+            this.renderer.setCanvasResolution(pc.RESOLUTION_AUTO);
+            this.renderer.on('update', this.update.bind(this));
+
 
 
             this.resize();
 
             // register game objects
-            this.objects = this.registerObjects({});
+            this.objects = this.registerObjects();
+
+            // assign events 
 
             // register listeners
             this.registerListeners();
@@ -40,7 +47,7 @@
             alert("Socket closed");
         }
 
-        onError() {
+        onError(e) {
             alert("Failed to connect to socket > " + e)
         }
 
@@ -51,18 +58,41 @@
 
         registerObjects(_) {
             // add game objects
-            _.floor = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000, 10, 10), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+            _ = {};
 
+            _.cube = new pc.Entity('cube');
+            _.camera = new pc.Entity('camera');
+            _.light = new pc.Entity('light');
 
             // apply object properties
-            _.floor.rotateX(-Math.PI / 2);
+
+            _.cube.addComponent('model', {
+                type: 'box'
+            })
+
+            _.cube.update = function () {
+                this.rotate(0.1, 0.1, 0.1);
+            }
+
+            _.camera.addComponent('camera', {
+                clearColor: new pc.Color(0.1, 0.1, 0.1)
+            })
+            _.camera.setPosition(0, 0, 5);
+
+            _.light.addComponent('light');
+            _.light.setEulerAngles(45, 0, 0);
+
+            
+
             // add all objects to scene and return objects
             for (var i in _) {
                 if (_[i].update != undefined) {
                     // bind update event to objects with update function
                     this.events.on('update', _[i].update.bind(_[i]))
                 }
-                this.scene.add(_[i]);
+                // add script component to all objects
+                _[i].addComponent('script');
+                this.renderer.root.addChild(_[i]);
             }
             return _;
         }
@@ -70,8 +100,7 @@
 
         run() {
             this.resize();
-
-            this.camera.rotation.z = 5;
+            this.renderer.start();
 
             this.update();
         }
@@ -80,17 +109,14 @@
             window.addEventListener('resize', this.resize.bind(this));
         }
 
-        resize(x, y) {
-            this.camera.aspect = window.innerWidth / window.innerHeight;
-            this.camera.updateProjectionMatrix(); // important
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
+        resize() {
+            this.renderer.resizeCanvas()
+            this.events.call('resize', [window.innerWidth, window.innerHeight]);
         }
 
-        update() {
+        update(dT) {
             if (this.gamestate != 1) return;
-            window.requestAnimationFrame(this.update.bind(this));
-            this.renderer.render(this.scene, this.camera);
-            this.events.call('update', this)
+            this.events.call('update', [dT]);
         }
 
 
