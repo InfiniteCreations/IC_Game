@@ -1,13 +1,13 @@
 ﻿requirejs({
     baseUrl: '',
     paths: {
-        scripts: 'assets/js/scripts',
+        Core: 'assets/js/core',
         THREE: 'assets/js/three.min'
     }
 })
 
 
-requirejs(['scripts/InfiniteCreations'], function (InfiniteCreations) {
+requirejs(['Core/InfiniteCreations'], function (InfiniteCreations) {
 
     new InfiniteCreations();
 })
