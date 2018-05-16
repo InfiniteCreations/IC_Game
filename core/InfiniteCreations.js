@@ -1,27 +1,25 @@
-﻿define(['pc', 'Core/EventManager'], function (pc, EventManager) {
+﻿define(['pc', 'Core/ScriptManager'], function (pc, ScriptManager) {
 
     return class InfiniteCreations {
 
         constructor() {
 
-
-            this.gamestate = -1; // -1 idle, 0 disconnected, 1 connected to socket
-            this.events = EventManager.registerEvent();
             this.renderer = new pc.Application(document.getElementById('ic_canvas'), {});
 
             this.renderer.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
             this.renderer.setCanvasResolution(pc.RESOLUTION_AUTO);
             this.renderer.on('update', this.update.bind(this));
 
-
-
             this.resize();
 
             // register game objects
             this.objects = this.registerObjects();
 
-            // assign events 
+            // register scripts
+            this.scriptManager = new ScriptManager(pc);
+            this.scriptManager.loadScripts(['Camera', 'Controller']);
 
+            // assign events 
             // register listeners
             this.registerListeners();
 
@@ -43,7 +41,6 @@
         }
 
         onClose() {
-            this.gamestate = 0;
             alert("Socket closed");
         }
 
@@ -52,7 +49,6 @@
         }
 
         onOpen() {
-            this.gamestate = 1;
             this.run();
         }
 
@@ -60,24 +56,15 @@
             // add game objects
             _ = {};
 
-            _.cube = new pc.Entity('cube');
             _.camera = new pc.Entity('camera');
             _.light = new pc.Entity('light');
 
             // apply object properties
 
-            _.cube.addComponent('model', {
-                type: 'box'
-            })
 
-            _.cube.update = function () {
-                this.rotate(0.1, 0.1, 0.1);
-            }
+            _.camera.addComponent('script');
+            _.camera.script.create('camera', { attributes: {} });
 
-            _.camera.addComponent('camera', {
-                clearColor: new pc.Color(0.1, 0.1, 0.1)
-            })
-            _.camera.setPosition(0, 0, 5);
 
             _.light.addComponent('light');
             _.light.setEulerAngles(45, 0, 0);
@@ -86,12 +73,6 @@
 
             // add all objects to scene and return objects
             for (var i in _) {
-                if (_[i].update != undefined) {
-                    // bind update event to objects with update function
-                    this.events.on('update', _[i].update.bind(_[i]))
-                }
-                // add script component to all objects
-                _[i].addComponent('script');
                 this.renderer.root.addChild(_[i]);
             }
             return _;
@@ -101,7 +82,6 @@
         run() {
             this.resize();
             this.renderer.start();
-
             this.update();
         }
 
@@ -111,15 +91,14 @@
 
         resize() {
             this.renderer.resizeCanvas()
-            this.events.call('resize', [window.innerWidth, window.innerHeight]);
         }
 
         update(dT) {
-            if (this.gamestate != 1) return;
-            this.events.call('update', [dT]);
+
         }
 
 
     }
+
 
 })
