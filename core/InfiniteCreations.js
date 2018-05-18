@@ -19,6 +19,7 @@
                 size: {x: 1000, y: 1000, z: 0}
             }
 
+
             this.resize();
 
             this.scriptManager = new ScriptManager(pc);
@@ -69,7 +70,7 @@
 
             // create game objects
 
-            _.player = this.entityManager.createEntity('player', null, { model: { type: 'asset' }});
+            _.player = this.entityManager.createEntity('player', null, { model: { type: 'asset' }, animation: { activate: true}});
 
             _.floor = this.entityManager.createEntity('ground', 'plane', {
                 model: { type: 'plane' },
@@ -91,10 +92,6 @@
 
 
             // load player object/textures
-            var textures = [
-                'public/models/player/player.json',
-                'public/models/player/mat/mat1.json'
-            ]
 
             this.renderer.assets.loadFromUrl('public/models/player/player.json', 'model', function (error, asset) {
                 if (error) {
@@ -112,10 +109,30 @@
             }.bind(this))
 
 
+            var _animations = {
+                idle: 'public/amimations/idle/idle.json',
+                jog: 'public/amimations/jog/jog.json',
+                running: 'public/amimations/running/running.json'
+            }
+
+
+            for (let i in _animations) {
+                let asset = new pc.Asset(i, 'animation', { url: _animations[i] }, { addressu: 'repeat', addressv: 'repeat' })
+                this.renderer.assets.load(asset);
+                asset.on('load', function (a) {
+                    _.player.animation.animations[i] = a.resource;
+                })
+    
+            }
+
+            _.player.animation.loop = true;
+            _.player.animation.play('idle', 0.5);
+
+
 
             // setup a skybox environment
 
-            textures = [
+            var _textures = [
                     'public/cubemaps/yokohama/posx.jpg',
                     'public/cubemaps/yokohama/negx.jpg',
                     'public/cubemaps/yokohama/posy.jpg',
@@ -125,7 +142,7 @@
             ]
 
 
-            var textures = textures.map(t => {
+            var textures = _textures.map(t => {
                 var asset = new pc.Asset(t, 'texture',
                   { url: t },
                   { addressu: 'repeat', addressv: 'repeat' }
@@ -137,7 +154,9 @@
             });
 
 
-            var cubemap = new pc.Asset('skybox', 'cubemap',
+
+
+            this.renderer.setSkybox(new pc.Asset('skybox', 'cubemap',
                 null,
                 {
                     anisotropy: 1,
@@ -146,10 +165,7 @@
                     rgbm: false,
                     textures: textures
                 }
-            );
-
-
-            this.renderer.setSkybox(cubemap)
+            ))
 
             // add all objects to scene and return objects
             for (var i in _) {

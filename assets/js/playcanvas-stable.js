@@ -33244,7 +33244,7 @@ pc.extend(pc, function() {
         callback(null, response);
       }
     });
-  }, open:function(url, data) {
+  }, open: function (url, data) {
     return this["_parseAnimationV" + data.animation.version](data);
   }, _parseAnimationV3:function(data) {
     var animData = data.animation;
