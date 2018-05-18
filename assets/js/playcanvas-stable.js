@@ -17588,6 +17588,7 @@ pc.extend(pc, function() {
         node = nodes[i];
         nodeName = node._name;
         keys = node._keys;
+
         interpKey = this._interpolatedKeyDict[nodeName];
         foundKey = false;
         if (keys.length !== 1) {
