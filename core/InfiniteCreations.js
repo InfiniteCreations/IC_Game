@@ -1,4 +1,4 @@
-﻿define(['pc', 'Core/ScriptManager', 'Core/EntityManager'], function (pc, ScriptManager, EntityManager) {
+﻿define(['_pc', 'Core/ScriptManager', 'Core/EntityManager'], function (pc, ScriptManager, EntityManager) {
 
     return class InfiniteCreations {
 
@@ -70,7 +70,19 @@
 
             // create game objects
 
-            _.player = this.entityManager.createEntity('player', null, { model: { type: 'asset' }, animation: { activate: true}});
+            _.player = this.entityManager.createEntity('player', null,
+                {
+                    model: {
+                        type: 'asset',
+                        castShadows: true,
+                        isStatic: false,
+                        receiveShadows: false
+                    },
+                    animation: {
+                        loop: true,
+                        activate: true
+                    }
+                });
 
             _.floor = this.entityManager.createEntity('ground', 'plane', {
                 model: { type: 'plane' },
@@ -79,7 +91,12 @@
                     halfExtents: new pc.Vec3(this.map.size.x / 2, this.map.size.z / 2, this.map.size.y / 2)
                 }
             });
-            _.camera = this.entityManager.createEntity('debugcamera', 'camera', {}, { camera: { attributes: {} }});
+
+            _.camera = this.entityManager.createEntity('debugcamera', 'camera', {},
+                {
+                    camera: { attributes: {} }
+                });
+
             _.light = this.entityManager.createEntity('light', 'light', { light: null });
 
             // apply object properties
@@ -88,7 +105,6 @@
             _.floor.setEulerAngles(0, 0, 0)
             _.floor.setLocalScale(this.map.size.x, this.map.size.z, this.map.size.y)
             _.light.setEulerAngles(45, 0, 0);
-            _.player.setPosition(0, 0, 0)
 
 
             // load player object/textures
@@ -98,35 +114,35 @@
                     alert("Failed to load " + t);
                     return;
                 }
-                this.renderer.assets.add(asset);
+
                 this.renderer.assets.load(asset);
 
                 _.player.model.asset = asset;
                 _.player.setLocalScale(3, 3, 3);
+                
+                // Load animations
+
+                var animations = {
+                    idle: 'public/animations/idle/idle.json',
+                    jog: 'public/animations/jog/jog.json',
+                    running: 'public/animations/running/running.json'
+                }
 
 
+                for (let i in animations) {
+                    this.renderer.assets.loadFromUrl(animations[i], 'animation', function (err, asset) {
+                        if (err) throw new Error("Failed to load animation file " + animations[i] + ". " + err);
+                        asset.resource.name = i;
+                        asset.name = i;
+                        _.player.animation.animations[i] = asset.resource; // get component
+                        // since the first animation was idle, lets play it .
+                        _.player.animation.play('idle', 0.5); // Trying to play animation 'idle' which doesn't exist....
+                    })
+                }
 
             }.bind(this))
 
-
-            var _animations = {
-                idle: 'public/amimations/idle/idle.json',
-                jog: 'public/amimations/jog/jog.json',
-                running: 'public/amimations/running/running.json'
-            }
-
-
-            for (let i in _animations) {
-                let asset = new pc.Asset(i, 'animation', { url: _animations[i] }, { addressu: 'repeat', addressv: 'repeat' })
-                this.renderer.assets.load(asset);
-                asset.on('load', function (a) {
-                    _.player.animation.animations[i] = a.resource;
-                })
-    
-            }
-
-            _.player.animation.loop = true;
-            _.player.animation.play('idle', 0.5);
+            window.player = _.player; // debug
 
 
 
