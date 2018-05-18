@@ -132,7 +132,7 @@
 
             // setup a skybox environment
 
-            var _textures = [
+            var textures = [
                     'public/cubemaps/yokohama/posx.jpg',
                     'public/cubemaps/yokohama/negx.jpg',
                     'public/cubemaps/yokohama/posy.jpg',
@@ -142,7 +142,7 @@
             ]
 
 
-            var textures = _textures.map(t => {
+            textures = textures.map(t => {
                 var asset = new pc.Asset(t, 'texture',
                   { url: t },
                   { addressu: 'repeat', addressv: 'repeat' }
