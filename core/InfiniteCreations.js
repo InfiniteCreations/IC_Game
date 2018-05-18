@@ -115,7 +115,6 @@
                     return;
                 }
 
-                this.renderer.assets.load(asset);
 
                 _.player.model.asset = asset;
                 _.player.setLocalScale(3, 3, 3);
