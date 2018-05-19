@@ -1,6 +1,23 @@
-﻿var Controller = pc.createScript('controller');
+﻿var Player = pc.createScript('Player');
 
-Controller.prototype.initialize = function () {
+Player.prototype.initialize = function () {
+
+    this.entity.addComponent('model', {
+        type: 'asset',
+        asset: this.app.assets.find('model_player', 'model')
+    })
+
+    this.entity.addComponent('animation', {
+        assets: [
+            this.app.assets.find('animation_idle', 'animation'),
+            this.app.assets.find('animation_jog', 'animation'),
+            this.app.assets.find('animation_running', 'animation'),
+            this.app.assets.find('animation_twist', 'animation')
+        ]
+    })
+
+    this.entity.setLocalScale(3, 3, 3)
+
     this.playerSpeed = 1.385;
     this.jumpVelocity = 500.5;
 
@@ -35,18 +52,18 @@ Controller.prototype.initialize = function () {
 }
 
 
-Controller.prototype.postInitialize = function () {
+Player.prototype.postInitialize = function () {
 
 }
 
-Controller.prototype.update = function (dT) {
+Player.prototype.update = function (dT) {
 
 }
 
-Controller.prototype.postUpdate = function () {
+Player.prototype.postUpdate = function () {
 
 }
 
-Controller.prototype.swap = function () {
+Player.prototype.swap = function () {
 
 }

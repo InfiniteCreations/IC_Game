@@ -9,6 +9,6 @@
 
 
 requirejs(['Core/InfiniteCreations'], function (InfiniteCreations) {
-    new InfiniteCreations();
+    window.IC = new InfiniteCreations();
 
 })

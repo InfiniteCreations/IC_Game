@@ -8,7 +8,7 @@
             this.extension = '.js'
         }
 
-        loadScript(a) {
+        async loadScript(a) {
             if (typeof a != 'string') return false;
             return new Promise((res, rej) => {
                 let req = this.request(this.path + a + this.extension);
@@ -26,7 +26,7 @@
 
         }
 
-        loadScripts(a) {
+        async loadScripts(a) {
             if (typeof a != 'object') return false;
             return new Promise((res, rej) => {
 
